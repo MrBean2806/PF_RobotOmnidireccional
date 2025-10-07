@@ -134,8 +134,14 @@ TIM_HandleTypeDef htim15;
 TIM_HandleTypeDef htim16;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
+DMA_HandleTypeDef hdma_usart3_rx;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 osThreadId defaultTaskHandle;
 osThreadId TxTaskHandle;
@@ -187,6 +193,8 @@ static void MX_TIM2_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
 void StartTxTask(void const * argument);
 void StartRxTask(void const * argument);
@@ -318,6 +326,8 @@ int main(void)
   MX_TIM16_Init();
   MX_USART1_UART_Init();
   MX_ADC2_Init();
+  MX_USART2_UART_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_NVIC_SetPriority(ADC1_2_IRQn, 5, 1);
   HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
@@ -495,11 +505,14 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
+                              |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_I2C1
                               |RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_TIM15
                               |RCC_PERIPHCLK_TIM16|RCC_PERIPHCLK_TIM8
                               |RCC_PERIPHCLK_ADC12|RCC_PERIPHCLK_TIM2;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
@@ -1069,6 +1082,76 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 2000000;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 2000000;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -1078,12 +1161,24 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
   /* DMA1_Channel4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
   /* DMA1_Channel5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  /* DMA1_Channel7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
@@ -1313,7 +1408,7 @@ void StartTxTask(void const * argument)
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //Transmito la trama
-            HAL_UART_Transmit_DMA(&huart1, trama_tx.string,sizeof(trama_tx.string));
+            HAL_UART_Transmit_DMA(&huart3, trama_tx.string,sizeof(trama_tx.string));
         }
         osDelay(100); // 200Hz
     }
@@ -1344,7 +1439,7 @@ void StartRxTask(void const * argument)
     xSemaphoreGive( myBinarySemRxConvHandle );
 
     // Activo la recepcion de la trama por UART con DMA.
-    HAL_UART_Receive_DMA(&huart1, (uint8_t *)trama_rx.string, 16);
+    HAL_UART_Receive_DMA(&huart3, (uint8_t *)trama_rx.string, 16);
 
     /* Infinite loop */
     for(;;)
@@ -1359,13 +1454,13 @@ void StartRxTask(void const * argument)
   
 			    crcVal = HAL_CRC_Accumulate(&hcrc, (uint8_t *)trama_rx.string, 12);
   
-			    if( crcVal == crcRx){
+			    //if( crcVal == crcRx){
 				    if( xSemaphoreTake( myBinarySemRxConvHandle, ( TickType_t ) 0 ) == pdTRUE ){
 					    if(xQueueSend(myQueueRxConvHandle, &velocidad, portMAX_DELAY) == pdPASS){
                             // Debug
 					    }
 				    }
-			    }
+			    //}
 
                 // Reinicio el registro INIT del modulo del crc para volver a calcular la proxima vez.
                 // Si no se realiza, el calculo del crc comienza con el valor final del calculo anterior.
@@ -1377,7 +1472,7 @@ void StartRxTask(void const * argument)
                 // Status
                 counter_rx_stop = 0;
 
-                HAL_UART_Receive_DMA(&huart1, (uint8_t *)trama_rx.string, 16);
+                HAL_UART_Receive_DMA(&huart3, (uint8_t *)trama_rx.string, 16);
 		    }
 
             ///////////////////////////////////////////////////////////////////////////
@@ -1526,7 +1621,7 @@ void StartControlVel(void const * argument)
   {
 	if (state == RUN_State){
 		// Recibo la velocidad de referencia
-		if ( xQueueReceive(myQueueConvControlHandle, &velocidad_ref, 0) == pdPASS ){x
+		if ( xQueueReceive(myQueueConvControlHandle, &velocidad_ref, 0) == pdPASS ){
 			xSemaphoreGive(myBinarySemConvControlHandle);
 		}
 
