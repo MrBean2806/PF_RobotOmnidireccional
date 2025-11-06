@@ -1733,7 +1733,7 @@ void StartControlVel(void const * argument)
 
             // limitador
             if (salida_PI[1] < -vel_maxima)
-                salida_PI[1] = vel_maxima;
+                salida_PI[1] = -vel_maxima;
             if (salida_PI[1] > vel_maxima)
                 salida_PI[1] = vel_maxima;
 
